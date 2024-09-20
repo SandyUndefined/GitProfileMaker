@@ -17,8 +17,16 @@ export default async function handler(req, res) {
   );
   const reposData = await reposResponse.json();
 
-  // Check if there is a README file in .github or in any of the repos
-  const readmeData = await fetchReadme(username, reposData);
+  // Fetch the README from the user's profile repository (same name as username)
+  const readmeResponse = await fetch(
+    `https://api.github.com/repos/${username}/${username}/contents/README.md`
+  );
+
+  let readmeData = null;
+  if (readmeResponse.status === 200) {
+    const readmeContent = await readmeResponse.json();
+    readmeData = atob(readmeContent.content); // Decode README content
+  }
 
   res.status(200).json({
     profile: profileData,
@@ -26,18 +34,3 @@ export default async function handler(req, res) {
     readme: readmeData,
   });
 }
-
-// Helper function to check for a README.md file in the user's repos
-const fetchReadme = async (username, repos) => {
-  for (let repo of repos) {
-    const readmeResponse = await fetch(
-      `https://api.github.com/repos/${username}/${repo.name}/contents/README.md`
-    );
-
-    if (readmeResponse.status === 200) {
-      const readmeData = await readmeResponse.json();
-      return atob(readmeData.content); // Decode the README content
-    }
-  }
-  return null;
-};

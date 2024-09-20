@@ -13,7 +13,7 @@ export default function Home() {
     const data = await res.json();
     setProfileData(data.profile);
     setRepos(data.repos);
-    setReadme(data.readme);
+    setReadme(data.readme); // Profile README.md content
   };
 
   return (
@@ -42,7 +42,7 @@ export default function Home() {
 
       {readme && (
         <div>
-          <h3>README.md</h3>
+          <h3>Profile README.md</h3>
           <div className="readme-content">
             <ReactMarkdown>{readme}</ReactMarkdown>
           </div>
