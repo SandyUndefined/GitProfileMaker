@@ -43,7 +43,9 @@ export default function Home() {
       {readme && (
         <div>
           <h3>README.md</h3>
-          <ReactMarkdown>{readme}</ReactMarkdown>
+          <div className="readme-content">
+            <ReactMarkdown>{readme}</ReactMarkdown>
+          </div>
         </div>
       )}
     </div>
