@@ -1,11 +1,15 @@
-# Welcome to My Profile! ✨
+# Welcome to {name}'s GitHub Profile! 🎉
 
-I'm {{name}}, a passionate developer.
+## Bio
+{bio}
 
-### Skills
-- 💻 Languages: {{languages}}.
-- 🛠 Tools: {{tools}}.
-- 🚀 Currently Learning: {{learning}}.
+## GitHub Stats
+- Repositories: {repos}
+- Followers: {followers}
+- Following: {following}
 
-### Find Me Online:
-- 🌍 [LinkedIn](https://www.linkedin.com/in/{{linkedin}}).
+## Technologies I Use
+- {languages}
+
+## Check Out My Repositories
+{repoList}

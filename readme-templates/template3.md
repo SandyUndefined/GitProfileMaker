@@ -1,6 +1,13 @@
-# Hi there! I'm {{name}} 👋
+# Hey there! I'm {name} 🚀
 
-**About Me**:
-- 🔭 Working on: {{project}}.
-- 🌱 Learning: {{learning}}.
-- 💬 Reach me: [Twitter](https://twitter.com/{{twitter}}).
+🌟 I'm passionate about:
+- {bio}
+
+## GitHub Stats 🚀
+- Total Repositories: {repos}
+- Followers: {followers}
+- Following: {following}
+
+## Featured Repositories:
+{repoList}
+
