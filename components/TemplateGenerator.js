@@ -1,9 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
 export default function TemplateGenerator({ username, profileData, repos }) {
   const [selectedTemplate, setSelectedTemplate] = useState(1); // Template selector
   const [generatedReadme, setGeneratedReadme] = useState("");
+  const [templatePreview, setTemplatePreview] = useState("");
+
+  // Fetch template preview when the user selects a template
+  useEffect(() => {
+    const fetchTemplatePreview = async () => {
+      const res = await fetch(
+        `/api/getTemplatePreview?templateId=${selectedTemplate}`
+      );
+      const preview = await res.text();
+      setTemplatePreview(preview);
+    };
+
+    fetchTemplatePreview();
+  }, [selectedTemplate]);
 
   const generateTemplate = async () => {
     const repoList = repos.map((repo) => `- ${repo.name}`).join("\n");
@@ -36,8 +50,17 @@ export default function TemplateGenerator({ username, profileData, repos }) {
           <option value="2">Template 2</option>
           <option value="3">Template 3</option>
         </select>
-        <button onClick={generateTemplate}>Generate README</button>
       </div>
+
+      {/* Preview the selected template */}
+      <div>
+        <h3>Preview Template</h3>
+        <div className="template-preview">
+          <ReactMarkdown>{templatePreview}</ReactMarkdown>
+        </div>
+      </div>
+
+      <button onClick={generateTemplate}>Generate README</button>
 
       {generatedReadme && (
         <div>
