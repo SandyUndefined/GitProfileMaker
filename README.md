@@ -1,40 +1,50 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# GitProfileMaker
 
-## Getting Started
+Generate a polished GitHub profile README and preview any public GitHub account in one place. Fork it, customize the templates, and share your profile in minutes.
 
-First, run the development server:
+## Features
+- Search any GitHub username and view key profile stats, bio, join date, social links, and gists.
+ - Inline rendering of the user's profile README (supports Markdown + HTML/badges via `remark-gfm` + `rehype-raw`).
+- Repository browser with stars/forks, language, description, and last-updated badges.
+- README generator with three badge-rich templates you can edit (`readme-templates/`), preview, and download.
+- Modern UI built with Next.js, React Tabs, and React Markdown.
 
+## Tech stack
+- Next.js 14, React 18
+- react-markdown + remark-gfm + rehype-raw
+- react-tabs
+
+## Getting started
+1) Install deps
+```bash
+npm install
+```
+2) Run the dev server
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+3) Open http://localhost:3000 and search for any GitHub username.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Scripts
+- `npm run dev` – start Next.js in dev mode
+- `npm run build` – production build
+- `npm run start` – run the built app
+- `npm run lint` – lint checks
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+## Templates
+Editable Markdown templates live in `readme-templates/` with paired `*-preview.md` files. Available placeholders:
+`{username}`, `{name}`, `{bio}`, `{repos}`, `{followers}`, `{following}`, `{languages}`, `{repoList}`
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## Notes on GitHub API limits
+The app uses public GitHub REST endpoints without a token. Heavy use can hit rate limits; if you need higher limits, wire up authentication in `pages/api/getProfile.js`.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## Contributing
+1) Fork the repo  
+2) Create a feature branch (`git checkout -b feature/my-change`)  
+3) Commit with clear messages and open a PR  
+4) Include screenshots for UI changes when possible  
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Roadmap ideas
+- Optional authenticated GitHub requests for higher rate limits
+- Language stats sourced per repo
+- More starter templates and theming options
