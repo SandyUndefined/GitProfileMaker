@@ -1,10 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 export default function TemplateGenerator({ username, profileData, repos }) {
-  const [selectedTemplate, setSelectedTemplate] = useState(1); // Template selector
+  const [selectedTemplate, setSelectedTemplate] = useState("1");
   const [generatedReadme, setGeneratedReadme] = useState("");
   const [templatePreview, setTemplatePreview] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Build a simple language summary from repo languages.
+  const languages = useMemo(() => {
+    const langSet = new Set(
+      repos.map((repo) => repo.language).filter(Boolean).slice(0, 8)
+    );
+    const list = Array.from(langSet).join(", ");
+    return list || "JavaScript, TypeScript, Node.js";
+  }, [repos]);
 
   // Fetch template preview when the user selects a template
   useEffect(() => {
@@ -20,15 +32,29 @@ export default function TemplateGenerator({ username, profileData, repos }) {
   }, [selectedTemplate]);
 
   const generateTemplate = async () => {
-    const repoList = repos.map((repo) => `- ${repo.name}`).join("\n");
-    const languages = "JavaScript, Python, etc."; // Placeholder, could be dynamic
+    if (!profileData) return;
+    setIsGenerating(true);
 
-    const res = await fetch(
-      `/api/getTemplate?username=${username}&templateId=${selectedTemplate}&name=${profileData.name}&bio=${profileData.bio}&repos=${profileData.public_repos}&followers=${profileData.followers}&following=${profileData.following}&languages=${languages}&repoList=${repoList}`
-    );
+    const repoList = repos
+      .map((repo) => `- [${repo.name}](${repo.html_url})`)
+      .join("\n");
 
+    const params = new URLSearchParams({
+      username,
+      templateId: selectedTemplate,
+      name: profileData.name || profileData.login,
+      bio: profileData.bio || "Open source enthusiast",
+      repos: profileData.public_repos,
+      followers: profileData.followers,
+      following: profileData.following,
+      languages,
+      repoList: repoList || "- Add some favorite repositories here!",
+    });
+
+    const res = await fetch(`/api/getTemplate?${params.toString()}`);
     const template = await res.text();
     setGeneratedReadme(template);
+    setIsGenerating(false);
   };
 
   const downloadReadme = (content) => {
@@ -39,40 +65,109 @@ export default function TemplateGenerator({ username, profileData, repos }) {
     link.click();
   };
 
+  const isGenerateDisabled = !profileData || !username.trim() || isGenerating;
+
   return (
-    <div>
-      <h2>Generate a Custom README.md</h2>
-
-      <div>
-        <h3>Select a Template:</h3>
-        <select onChange={(e) => setSelectedTemplate(e.target.value)}>
-          <option value="1">Template 1</option>
-          <option value="2">Template 2</option>
-          <option value="3">Template 3</option>
-        </select>
-      </div>
-
-      {/* Preview the selected template */}
-      <div>
-        <h3>Preview Template</h3>
-        <div className="template-preview">
-          <ReactMarkdown>{templatePreview}</ReactMarkdown>
-        </div>
-      </div>
-
-      <button onClick={generateTemplate}>Generate README</button>
-
-      {generatedReadme && (
+    <div className="generator-shell">
+      <div className="generator-header">
         <div>
-          <h3>Preview Generated README.md</h3>
-          <div className="readme-preview">
-            <ReactMarkdown>{generatedReadme}</ReactMarkdown>
-          </div>
-          <button onClick={() => downloadReadme(generatedReadme)}>
-            Download README.md
-          </button>
+          <p className="eyebrow">README builder</p>
+          <h2>Generate a custom profile README</h2>
+          <p>
+            Pick a template, blend in your GitHub stats, and download a
+            copy-ready README with badges.
+          </p>
         </div>
-      )}
+        <div className="generator-meta">
+          <p className="muted">Steps</p>
+          <ol>
+            <li>Search a GitHub user</li>
+            <li>Select a template</li>
+            <li>Generate & download</li>
+          </ol>
+        </div>
+      </div>
+
+      <div className="generator-grid">
+        <div className="panel">
+          <div className="panel__header">
+            <h3>Template selection</h3>
+            <span className="pill">3 options</span>
+          </div>
+          <div className="template-selector">
+            {[1, 2, 3].map((id) => (
+              <button
+                key={id}
+                className={`template-button ${
+                  selectedTemplate === String(id) ? "active" : ""
+                }`}
+                onClick={() => setSelectedTemplate(String(id))}
+              >
+                <span className="template-id">Template {id}</span>
+                <span className="template-note">
+                  {id === 1 && "Classic badges & stats"}
+                  {id === 2 && "Stack highlights + repo links"}
+                  {id === 3 && "Story-driven intro"}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="panel__section">
+            <h4>Template preview</h4>
+            <div className="template-preview markdown-surface">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+              >
+                {templatePreview}
+              </ReactMarkdown>
+            </div>
+          </div>
+
+          <div className="panel__actions">
+            <button onClick={generateTemplate} disabled={isGenerateDisabled}>
+              {isGenerating ? "Generating..." : "Generate README"}
+            </button>
+            {!profileData && (
+              <span className="hint">
+                Search a GitHub user first to pull stats into the template.
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel__header">
+            <h3>Generated Markdown</h3>
+            <span className="pill">Live preview</span>
+          </div>
+          {generatedReadme ? (
+            <>
+              <div className="readme-preview markdown-surface">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                >
+                  {generatedReadme}
+                </ReactMarkdown>
+              </div>
+              <div className="panel__actions">
+                <button onClick={() => downloadReadme(generatedReadme)}>
+                  Download README.md
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="empty-state">
+              <p>
+                Generate a README to see a Markdown preview with your profile
+                data.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -22,6 +22,7 @@ export default function handler(req, res) {
 
   // Replace placeholders with user data
   template = template
+    .replace("{username}", username)
     .replace("{name}", name)
     .replace("{bio}", bio)
     .replace("{repos}", repos)
